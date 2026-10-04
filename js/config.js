@@ -23,6 +23,8 @@ export const WRAP_RULES = {
 // speedupMs：每次加速縮短的毫秒數
 // minTickMs：加速的上限（最短間隔）
 // classicWrap：經典模式使用的穿牆規則
+// obstacleRatio：隨機關卡中障礙物佔全部格子的比例
+// wrapWeights：隨機關卡各種穿牆規則的出現機率（百分比）
 export const DIFFICULTIES = {
   easy: {
     startTickMs: 180,
@@ -30,6 +32,8 @@ export const DIFFICULTIES = {
     speedupMs: 0,
     minTickMs: 180,
     classicWrap: 'both',
+    obstacleRatio: 0.03,
+    wrapWeights: { both: 60, vertical: 20, horizontal: 20, none: 0 },
   },
   normal: {
     startTickMs: 140,
@@ -37,6 +41,8 @@ export const DIFFICULTIES = {
     speedupMs: 10,
     minTickMs: 70,
     classicWrap: 'none',
+    obstacleRatio: 0.06,
+    wrapWeights: { both: 20, vertical: 25, horizontal: 25, none: 30 },
   },
   hard: {
     startTickMs: 100,
@@ -44,10 +50,22 @@ export const DIFFICULTIES = {
     speedupMs: 8,
     minTickMs: 50,
     classicWrap: 'none',
+    obstacleRatio: 0.1,
+    wrapWeights: { both: 10, vertical: 20, horizontal: 20, none: 50 },
   },
 };
 
+// 隨機關卡：蛇頭前方保留幾格不放障礙物
+export const SPAWN_SAFE_DISTANCE = 4;
+
+// 隨機關卡：地圖不通過檢查時最多重新生成幾次
+export const MAX_LEVEL_ATTEMPTS = 50;
+
+// 每關開始前顯示關卡規則的時間（毫秒）
+export const LEVEL_INTRO_MS = 1500;
+
 // 主選單的預設值
 export const DEFAULT_SETTINGS = {
+  mode: 'classic',
   difficulty: 'normal',
 };

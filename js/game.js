@@ -3,6 +3,7 @@ import { createSnake, moveHead, isOpposite, occupies } from './snake.js';
 
 export const STATE = {
   READY: 'ready', // 等待開始
+  INTRO: 'intro', // 開局前顯示關卡規則
   PLAYING: 'playing', // 遊戲中
   PAUSED: 'paused', // 暫停
   OVER: 'over', // 遊戲結束
@@ -10,18 +11,31 @@ export const STATE = {
 
 export class Game {
   // speed 的欄位說明見 config.js 的 DIFFICULTIES
-  constructor({ cols, rows, startLength, maxQueuedInputs, speed, wrap, rng = Math.random }) {
+  // level 由 level.js 的 generateLevel 產生，包含障礙物與出生位置
+  constructor({
+    cols,
+    rows,
+    startLength,
+    maxQueuedInputs,
+    speed,
+    wrap,
+    level,
+    introMs = 0,
+    rng = Math.random,
+  }) {
     this.cols = cols;
     this.rows = rows;
     this.maxQueuedInputs = maxQueuedInputs;
     this.speed = speed;
     this.wrap = wrap;
     this.rng = rng;
+    this.wrapRule = level.wrapRule;
+    this.obstacles = level.obstacles;
+    this.obstacleKeys = new Set(level.obstacles.map((cell) => `${cell.x},${cell.y}`));
+    this.introMs = introMs;
 
-    // 蛇放在地圖中央，朝右前進
-    const head = { x: Math.floor(cols / 2), y: Math.floor(rows / 2) };
-    this.direction = 'right';
-    this.snake = createSnake(head, this.direction, startLength);
+    this.direction = level.spawn.direction;
+    this.snake = createSnake(level.spawn.head, this.direction, startLength);
     this.inputQueue = [];
     this.score = 0;
     this.won = false;
@@ -31,8 +45,10 @@ export class Game {
     this.state = STATE.READY;
   }
 
+  // 開始遊戲：有設定開局提示時間就先進入提示狀態
   start() {
-    if (this.state === STATE.READY) this.state = STATE.PLAYING;
+    if (this.state !== STATE.READY) return;
+    this.state = this.introMs > 0 ? STATE.INTRO : STATE.PLAYING;
   }
 
   pause() {
@@ -58,6 +74,11 @@ export class Game {
 
   // 經過 dt 毫秒：累積時間，每滿一個移動間隔就前進一格
   step(dt) {
+    if (this.state === STATE.INTRO) {
+      this.introMs -= dt;
+      if (this.introMs <= 0) this.state = STATE.PLAYING;
+      return;
+    }
     if (this.state !== STATE.PLAYING) return;
 
     this.elapsed += dt;
@@ -76,7 +97,7 @@ export class Game {
     }
 
     const head = moveHead(this.snake[0], this.direction, this.cols, this.rows, this.wrap);
-    if (!head) {
+    if (!head || this.isObstacle(head)) {
       this.state = STATE.OVER;
       return;
     }
@@ -106,6 +127,10 @@ export class Game {
     }
   }
 
+  isObstacle(cell) {
+    return this.obstacleKeys.has(`${cell.x},${cell.y}`);
+  }
+
   // 依難度設定，每吃到一定數量的食物就縮短移動間隔
   speedUp() {
     const { speedupEvery, speedupMs, minTickMs } = this.speed;
@@ -114,12 +139,13 @@ export class Game {
     }
   }
 
-  // 在隨機的空格放食物；沒有空格時回傳 null
+  // 在隨機的空格（不是蛇身也不是障礙物）放食物；沒有空格時回傳 null
   spawnFood() {
     const empty = [];
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
-        if (!occupies(this.snake, { x, y })) empty.push({ x, y });
+        const cell = { x, y };
+        if (!occupies(this.snake, cell) && !this.isObstacle(cell)) empty.push(cell);
       }
     }
     if (empty.length === 0) return null;

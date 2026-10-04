@@ -19,6 +19,10 @@
           <span class="hud-label">最高分</span>
           <span id="high-score" class="hud-value">0</span>
         </div>
+        <div id="level-info" class="hud-item" hidden>
+          <span id="wrap-indicator" class="wrap-indicator" role="img"></span>
+          <span id="hud-level-code" class="hud-label"></span>
+        </div>
         <button id="pause-button" class="icon-button" type="button" aria-label="暫停" hidden>
           ❚❚
         </button>
@@ -30,7 +34,18 @@
         <!-- 主選單 -->
         <div id="menu-screen" class="overlay">
           <form id="menu-form" class="panel">
-            <h2 class="panel-title">選擇難度</h2>
+            <h2 class="panel-title">遊戲設定</h2>
+            <fieldset class="options">
+              <legend class="visually-hidden">關卡模式</legend>
+              <label class="option">
+                <input type="radio" name="mode" value="classic" />
+                <span>經典</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="mode" value="random" />
+                <span>隨機關卡</span>
+              </label>
+            </fieldset>
             <fieldset class="options">
               <legend class="visually-hidden">難度</legend>
               <label class="option">
@@ -46,10 +61,32 @@
                 <span>困難</span>
               </label>
             </fieldset>
+            <div id="level-code-field" class="field" hidden>
+              <label for="level-code-input">關卡代碼（選填）</label>
+              <input
+                id="level-code-input"
+                name="levelCode"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                maxlength="8"
+                placeholder="例如 N-4F7K2Q"
+              />
+              <p id="level-code-error" class="error" hidden>關卡代碼格式不正確</p>
+            </div>
             <p class="panel-text">最高分：<span id="menu-high-score">0</span></p>
             <button type="submit" class="button primary">開始遊戲</button>
             <p class="hint">方向鍵或 WASD 移動，空白鍵暫停</p>
           </form>
+        </div>
+
+        <!-- 開局提示：顯示本關的穿牆規則 -->
+        <div id="intro-screen" class="overlay" hidden>
+          <div class="panel">
+            <p id="intro-mode" class="panel-text"></p>
+            <h2 id="intro-rule" class="panel-title"></h2>
+            <p id="intro-code" class="hint"></p>
+          </div>
         </div>
 
         <!-- 暫停畫面 -->
@@ -68,7 +105,9 @@
             <h2 id="over-title" class="panel-title">遊戲結束</h2>
             <p class="panel-text">分數：<span id="over-score">0</span></p>
             <p id="over-record" class="record" hidden>新紀錄！</p>
+            <p id="over-code" class="hint" hidden></p>
             <button id="retry-button" type="button" class="button primary">再玩一次</button>
+            <button id="new-level-button" type="button" class="button" hidden>新關卡</button>
             <button id="over-menu-button" type="button" class="button">回主選單</button>
           </div>
         </div>

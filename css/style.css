@@ -79,7 +79,6 @@ body {
 #game {
   display: block;
   max-width: 100%;
-  border: 2px solid var(--color-border);
   outline: none;
 }
 
@@ -129,6 +128,47 @@ body {
   margin: 0;
   color: var(--color-accent);
   font-weight: bold;
+}
+
+/* 穿牆規則圖示 */
+.wrap-indicator {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* 關卡代碼輸入欄 */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.field input {
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  text-transform: uppercase;
+}
+
+.field input:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.error {
+  margin: 0;
+  color: #c62828;
+  font-size: 0.85rem;
+}
+
+.field[hidden],
+.error[hidden],
+.hud-item[hidden] {
+  display: none;
 }
 
 /* 選項（單選按鈕做成按鈕外觀） */
