@@ -10,7 +10,7 @@ import {
 } from './config.js';
 import { Game, STATE, startLoop } from './game.js';
 import { LANGUAGES, detectLanguage, getLanguage, setLanguage, t } from './i18n.js';
-import { bindKeyboard } from './input.js';
+import { bindKeyboard, bindTouch } from './input.js';
 import { generateLevel, encodeLevelCode, decodeLevelCode } from './level.js';
 import { mulberry32, randomSeed } from './random.js';
 import { createRenderer } from './renderer.js';
@@ -21,7 +21,8 @@ import { createUI } from './ui.js';
 const MODES = ['classic', 'random'];
 
 const settings = sanitizeSettings(loadSettings(DEFAULT_SETTINGS));
-const renderer = createRenderer(document.getElementById('game'), GRID);
+const canvas = document.getElementById('game');
+const renderer = createRenderer(canvas, GRID);
 renderer.setTheme(getTheme(settings.theme));
 
 let game = null;
@@ -140,6 +141,10 @@ const ui = createUI({
 bindKeyboard({
   onDirection: (direction) => game?.queueDirection(direction),
   onPause: togglePause,
+});
+
+bindTouch(canvas, {
+  onDirection: (direction) => game?.queueDirection(direction),
 });
 
 // 切換到其他分頁或縮小視窗時自動暫停

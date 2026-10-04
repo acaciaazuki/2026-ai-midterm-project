@@ -4,9 +4,26 @@ export function createRenderer(canvas, { cols, rows, cellSize }) {
   // 地圖四周留半格寬的外框，用來畫牆壁或可穿越的通道
   const border = Math.round(cellSize / 2);
   const view = { cols, rows, cellSize, border, width: cols * cellSize, height: rows * cellSize };
-  canvas.width = view.width + border * 2;
-  canvas.height = view.height + border * 2;
+
+  // 邏輯尺寸：主題繪圖時使用的座標範圍，不受螢幕大小影響
+  const logicalWidth = view.width + border * 2;
+  const logicalHeight = view.height + border * 2;
+  canvas.style.aspectRatio = `${logicalWidth} / ${logicalHeight}`;
   const ctx = canvas.getContext('2d');
+
+  // 實際解析度 = 顯示大小 × 裝置像素比，手機等高解析度螢幕上才不會模糊
+  // 繪圖時再用 scale 縮放回邏輯尺寸，主題的程式碼不用處理螢幕大小
+  let scale = 1;
+  function resize() {
+    const displayWidth = canvas.clientWidth || logicalWidth;
+    scale = (displayWidth * (window.devicePixelRatio || 1)) / logicalWidth;
+    canvas.width = Math.round(logicalWidth * scale);
+    canvas.height = Math.round(logicalHeight * scale);
+  }
+  resize();
+  // 顯示大小改變（旋轉螢幕、調整視窗）或縮放頁面時重新計算
+  new ResizeObserver(resize).observe(canvas);
+  window.addEventListener('resize', resize);
 
   const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -43,9 +60,9 @@ export function createRenderer(canvas, { cols, rows, cellSize }) {
 
     // game 為 null 時（例如在主選單）只畫空白的地圖與四周的牆
     render(game) {
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
       ctx.imageSmoothingEnabled = !theme.pixelated;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, logicalWidth, logicalHeight);
 
       // 動畫用的時間，以及系統是否開啟「減少動態效果」
       view.time = performance.now();

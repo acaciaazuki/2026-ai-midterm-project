@@ -22,6 +22,7 @@ export default {
   'menu.highScore': '最高分：',
   'menu.start': '開始遊戲',
   'menu.hint': '方向鍵或 WASD 移動，空白鍵暫停',
+  'menu.hintTouch': '在遊戲畫面上滑動控制方向',
 
   // 模式與難度
   'mode.classic': '經典',

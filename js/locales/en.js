@@ -21,6 +21,7 @@ export default {
   'menu.highScore': 'Best: ',
   'menu.start': 'Start',
   'menu.hint': 'Arrow keys or WASD to move, Space to pause',
+  'menu.hintTouch': 'Swipe on the board to change direction',
 
   // 模式與難度
   'mode.classic': 'Classic',
