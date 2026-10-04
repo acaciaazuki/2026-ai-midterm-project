@@ -34,6 +34,9 @@ export default {
   'theme.flat': '簡約扁平',
   'theme.nokia': 'Nokia 懷舊',
   'theme.gameboy': 'Game Boy 四色',
+  'theme.neon': '霓虹賽博',
+  'theme.retro8bit': '復古像素 8-bit',
+  'theme.notebook': '手繪筆記本',
   'theme.contrast': '高對比無障礙',
 
   // 穿牆規則

@@ -1,5 +1,13 @@
 // Game Boy 四色：只用四種綠色的像素風
-import { cellRect, drawPixelMap, edges, eyePositions, fillBackground, strokeEdge } from './helpers.js';
+import {
+  PIXEL_FONT,
+  cellRect,
+  drawPixelMap,
+  edges,
+  eyePositions,
+  fillBackground,
+  strokeEdge,
+} from './helpers.js';
 
 // 四種顏色由深到淺
 const C = {
@@ -40,6 +48,7 @@ export default {
   id: 'gameboy',
   nameKey: 'theme.gameboy',
   pixelated: true,
+  font: PIXEL_FONT,
 
   palette: () => ({
     colors: C,

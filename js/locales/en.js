@@ -33,6 +33,9 @@ export default {
   'theme.flat': 'Flat',
   'theme.nokia': 'Nokia Classic',
   'theme.gameboy': 'Game Boy',
+  'theme.neon': 'Neon',
+  'theme.retro8bit': 'Retro 8-bit',
+  'theme.notebook': 'Notebook',
   'theme.contrast': 'High Contrast',
 
   // 穿牆規則

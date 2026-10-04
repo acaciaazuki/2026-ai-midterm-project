@@ -1,4 +1,11 @@
-/* 介面配色：之後由主題系統覆寫這些變數 */
+/* 像素風主題用的字型：只包含介面用到的字，說明見 fonts/README.md */
+@font-face {
+  font-family: "Cubic 11";
+  src: url("../fonts/cubic-11-subset.woff2") format("woff2");
+  font-display: swap;
+}
+
+/* 介面配色：由主題系統覆寫這些變數 */
 :root {
   --color-bg: #f5f5f0;
   --color-surface: #ffffff;

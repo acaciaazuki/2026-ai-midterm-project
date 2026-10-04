@@ -1,5 +1,13 @@
 // Nokia 懷舊：淡綠色液晶底、深色方塊、細格線
-import { cellRect, drawPixelMap, edges, eyePositions, fillBackground, strokeEdge } from './helpers.js';
+import {
+  PIXEL_FONT,
+  cellRect,
+  drawPixelMap,
+  edges,
+  eyePositions,
+  fillBackground,
+  strokeEdge,
+} from './helpers.js';
 
 const C = {
   outer: '#a9be86',
@@ -15,6 +23,7 @@ export default {
   id: 'nokia',
   nameKey: 'theme.nokia',
   pixelated: true,
+  font: PIXEL_FONT,
 
   palette: () => ({
     colors: C,

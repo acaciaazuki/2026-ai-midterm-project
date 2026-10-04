@@ -1,6 +1,9 @@
 // 主題共用的繪圖工具
 import { DIRECTIONS } from '../snake.js';
 
+// 像素風主題的介面字型（定義在 css/style.css 的 @font-face）
+export const PIXEL_FONT = '"Cubic 11", system-ui, sans-serif';
+
 // 取得格子的繪圖範圍，inset 是四周內縮的像素
 export function cellRect(view, cell, inset = 0) {
   const s = view.cellSize;
@@ -83,4 +86,41 @@ export function drawPixelMap(ctx, rect, map, palette) {
       ctx.fillRect(rect.x + x * px, rect.y + y * px, Math.ceil(px), Math.ceil(px));
     });
   });
+}
+
+// 格子的中心點座標
+export function cellCenter(view, cell) {
+  return {
+    x: cell.x * view.cellSize + view.cellSize / 2,
+    y: cell.y * view.cellSize + view.cellSize / 2,
+  };
+}
+
+// 把蛇身切成幾段連續的部分：穿牆時前後兩節不相鄰，線條要在那裡斷開
+export function snakeRuns(snake) {
+  const runs = [[snake[0]]];
+  for (let i = 1; i < snake.length; i++) {
+    const prev = snake[i - 1];
+    const part = snake[i];
+    if (Math.abs(prev.x - part.x) + Math.abs(prev.y - part.y) === 1) {
+      runs.at(-1).push(part);
+    } else {
+      runs.push([part]);
+    }
+  }
+  return runs;
+}
+
+// 依前進方向旋轉像素圖（原圖朝右，每次順時針轉 90 度）
+const QUARTER_TURNS = { right: 0, down: 1, left: 2, up: 3 };
+
+export function rotateMap(map, direction) {
+  let result = map;
+  for (let turn = 0; turn < QUARTER_TURNS[direction]; turn++) {
+    const n = result.length;
+    result = result.map((_, y) =>
+      Array.from({ length: n }, (_, x) => result[n - 1 - x][y]).join(''),
+    );
+  }
+  return result;
 }

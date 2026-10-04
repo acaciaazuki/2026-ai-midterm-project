@@ -9,6 +9,7 @@ export function createRenderer(canvas, { cols, rows, cellSize }) {
   const ctx = canvas.getContext('2d');
 
   const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   let theme = null;
   let colors = null;
 
@@ -18,6 +19,12 @@ export function createRenderer(canvas, { cols, rows, cellSize }) {
     colors = palette.colors;
     for (const [name, value] of Object.entries(palette.ui)) {
       document.documentElement.style.setProperty(`--color-${name}`, value);
+    }
+    // 主題有指定介面字型就套用，沒有的話移除，回到 CSS 預設的系統字型
+    if (theme.font) {
+      document.documentElement.style.setProperty('--font-ui', theme.font);
+    } else {
+      document.documentElement.style.removeProperty('--font-ui');
     }
     // 像素風主題在畫面縮放時保持清晰的像素邊緣
     canvas.style.imageRendering = theme.pixelated ? 'pixelated' : 'auto';
@@ -39,6 +46,10 @@ export function createRenderer(canvas, { cols, rows, cellSize }) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.imageSmoothingEnabled = !theme.pixelated;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 動畫用的時間，以及系統是否開啟「減少動態效果」
+      view.time = performance.now();
+      view.reducedMotion = motionQuery.matches;
 
       // 之後的座標都以地圖左上角為原點
       ctx.translate(border, border);
