@@ -2,6 +2,8 @@
 
 學校期中專題：以原生 JavaScript 與 HTML5 Canvas 製作的貪食蛇網頁遊戲。不使用框架、不需要建置，瀏覽器直接執行。
 
+**線上試玩**：<https://yuqi-cai.github.io/2026-ai-midterm-project/>
+
 ## 特色
 
 - **兩種關卡模式**：經典模式（沒有障礙物）與隨機關卡（障礙物、穿牆規則每關不同）
