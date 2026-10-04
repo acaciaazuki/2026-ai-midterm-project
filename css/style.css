@@ -1,0 +1,42 @@
+/* 介面配色：之後由主題系統覆寫這些變數 */
+:root {
+  --color-bg: #f5f5f0;
+  --color-text: #222;
+  --color-board: #fff;
+  --color-border: #ccc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 16px;
+}
+
+.title {
+  margin: 0;
+}
+
+#game {
+  max-width: 100%;
+  background: var(--color-board);
+  border: 2px solid var(--color-border);
+}
+
+.status {
+  margin: 0;
+  min-height: 1.5em;
+}
