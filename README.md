@@ -151,3 +151,4 @@ npx serve .
 ## 文件
 
 - [技術棧與實作計畫](docs/PLAN.md)
+- [部署說明（GitHub Pages）](docs/DEPLOY.md)
