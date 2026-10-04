@@ -69,4 +69,5 @@ export const DEFAULT_SETTINGS = {
   mode: 'classic',
   difficulty: 'normal',
   language: null, // null 表示依瀏覽器語言自動決定
+  theme: 'flat',
 };

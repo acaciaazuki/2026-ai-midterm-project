@@ -14,6 +14,7 @@ export default {
   'menu.mode': 'Mode',
   'menu.difficulty': 'Difficulty',
   'menu.language': 'Language',
+  'menu.theme': 'Theme',
   'menu.levelCode': 'Level code (optional)',
   'menu.levelCodePlaceholder': 'e.g. N-4F7K2Q',
   'menu.levelCodeError': 'Invalid level code',
@@ -27,6 +28,12 @@ export default {
   'difficulty.easy': 'Easy',
   'difficulty.normal': 'Normal',
   'difficulty.hard': 'Hard',
+
+  // 主題名稱
+  'theme.flat': 'Flat',
+  'theme.nokia': 'Nokia Classic',
+  'theme.gameboy': 'Game Boy',
+  'theme.contrast': 'High Contrast',
 
   // 穿牆規則
   'wrap.both': 'Wrap on all edges',

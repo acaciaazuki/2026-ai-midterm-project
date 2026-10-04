@@ -14,13 +14,15 @@ import { bindKeyboard } from './input.js';
 import { generateLevel, encodeLevelCode, decodeLevelCode } from './level.js';
 import { mulberry32, randomSeed } from './random.js';
 import { createRenderer } from './renderer.js';
+import { THEMES, getTheme } from './themes/index.js';
 import { loadSettings, saveSettings, getHighScore, saveHighScore } from './storage.js';
 import { createUI } from './ui.js';
 
 const MODES = ['classic', 'random'];
 
 const settings = sanitizeSettings(loadSettings(DEFAULT_SETTINGS));
-const render = createRenderer(document.getElementById('game'), GRID);
+const renderer = createRenderer(document.getElementById('game'), GRID);
+renderer.setTheme(getTheme(settings.theme));
 
 let game = null;
 let seed = null; // 目前隨機關卡的種子，經典模式為 null
@@ -34,6 +36,7 @@ function sanitizeSettings(saved) {
     difficulty: saved.difficulty in DIFFICULTIES ? saved.difficulty : DEFAULT_SETTINGS.difficulty,
     // null 表示玩家還沒選過，每次開啟都依瀏覽器語言自動決定
     language: LANGUAGES.includes(saved.language) ? saved.language : null,
+    theme: getTheme(saved.theme).id,
   };
 }
 
@@ -86,6 +89,7 @@ function togglePause() {
 }
 
 const ui = createUI({
+  themes: THEMES,
   onStart(choice) {
     seed = null;
     if (choice.mode === 'random') {
@@ -111,11 +115,16 @@ const ui = createUI({
   onMenuChange(choice) {
     ui.setMenuHighScore(getHighScore(choice.mode, choice.difficulty));
 
-    // 語言在選擇的當下就切換並儲存
+    // 語言與主題在選擇的當下就切換並儲存
     if (choice.language !== getLanguage()) {
       settings.language = choice.language;
       saveSettings(settings);
       setLanguage(choice.language);
+    }
+    if (choice.theme !== settings.theme) {
+      settings.theme = choice.theme;
+      saveSettings(settings);
+      renderer.setTheme(getTheme(choice.theme));
     }
   },
   onResume: togglePause,
@@ -181,7 +190,7 @@ startLoop((dt) => {
     }
   }
 
-  render(game);
+  renderer.render(game);
 });
 
 setLanguage(detectLanguage(settings.language));

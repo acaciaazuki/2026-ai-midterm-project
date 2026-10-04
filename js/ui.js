@@ -7,6 +7,7 @@ const $ = (id) => document.getElementById(id);
 const WRAP_ICONS = { both: '✥', vertical: '⇅', horizontal: '⇆', none: '▣' };
 
 export function createUI({
+  themes,
   onStart,
   onMenuChange,
   onResume,
@@ -26,6 +27,15 @@ export function createUI({
   const canvas = $('game');
   const pauseButton = $('pause-button');
 
+  // 依主題清單產生下拉選單選項，選項文字交給語言模組替換
+  const themeSelect = $('theme-select');
+  for (const theme of themes) {
+    const option = document.createElement('option');
+    option.value = theme.id;
+    option.dataset.i18n = theme.nameKey;
+    themeSelect.append(option);
+  }
+
   // 只顯示指定的畫面；name 為 null 時全部隱藏（遊戲進行中）
   function showScreen(name) {
     for (const [key, el] of Object.entries(screens)) {
@@ -41,6 +51,7 @@ export function createUI({
       mode: data.get('mode'),
       difficulty: data.get('difficulty'),
       language: data.get('language'),
+      theme: data.get('theme'),
       levelCode: data.get('mode') === 'random' ? data.get('levelCode').trim() : '',
     };
   }
@@ -75,6 +86,7 @@ export function createUI({
       menuForm.elements.mode.value = settings.mode;
       menuForm.elements.difficulty.value = settings.difficulty;
       menuForm.elements.language.value = language;
+      themeSelect.value = settings.theme;
       $('menu-high-score').textContent = highScore;
       // 清空上次輸入的代碼，避免沒注意到而一直重玩同一關
       codeInput.value = '';

@@ -15,6 +15,7 @@ export default {
   'menu.mode': '關卡模式',
   'menu.difficulty': '難度',
   'menu.language': '語言',
+  'menu.theme': '主題',
   'menu.levelCode': '關卡代碼（選填）',
   'menu.levelCodePlaceholder': '例如 N-4F7K2Q',
   'menu.levelCodeError': '關卡代碼格式不正確',
@@ -28,6 +29,12 @@ export default {
   'difficulty.easy': '簡單',
   'difficulty.normal': '普通',
   'difficulty.hard': '困難',
+
+  // 主題名稱
+  'theme.flat': '簡約扁平',
+  'theme.nokia': 'Nokia 懷舊',
+  'theme.gameboy': 'Game Boy 四色',
+  'theme.contrast': '高對比無障礙',
 
   // 穿牆規則
   'wrap.both': '全部可穿越',
