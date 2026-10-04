@@ -43,6 +43,9 @@ export function createRenderer(canvas, { cols, rows, cellSize }) {
     } else {
       document.documentElement.style.removeProperty('--font-ui');
     }
+    // 瀏覽器分頁的圖示換成目前主題的版本
+    const favicon = document.getElementById('favicon');
+    if (favicon) favicon.href = `icons/favicon-${theme.id}.svg`;
     // 像素風主題在畫面縮放時保持清晰的像素邊緣
     canvas.style.imageRendering = theme.pixelated ? 'pixelated' : 'auto';
   }

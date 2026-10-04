@@ -114,7 +114,10 @@ const ui = createUI({
     newGame();
   },
   onMenuChange(choice) {
-    ui.setMenuHighScore(getHighScore(choice.mode, choice.difficulty));
+    // 主選單與上方分數列的最高分都改成目前選擇的模式與難度
+    const highScore = getHighScore(choice.mode, choice.difficulty);
+    ui.setMenuHighScore(highScore);
+    ui.updateHud(0, highScore);
 
     // 語言與主題在選擇的當下就切換並儲存
     if (choice.language !== getLanguage()) {
