@@ -13,8 +13,13 @@ const KEY_TO_DIRECTION = {
   KeyD: 'right',
 };
 
-export function bindKeyboard({ onDirection, onConfirm }) {
+const PAUSE_KEYS = ['Space', 'KeyP', 'Escape'];
+
+export function bindKeyboard({ onDirection, onPause }) {
   window.addEventListener('keydown', (e) => {
+    // 在輸入框、下拉選單、單選按鈕上操作時，讓瀏覽器照原本的方式處理
+    if (e.target.closest('input, select, textarea')) return;
+
     const direction = KEY_TO_DIRECTION[e.code];
     if (direction) {
       // 避免方向鍵捲動頁面
@@ -23,9 +28,11 @@ export function bindKeyboard({ onDirection, onConfirm }) {
       return;
     }
 
-    if ((e.code === 'Enter' || e.code === 'NumpadEnter') && !e.repeat) {
+    if (PAUSE_KEYS.includes(e.code) && !e.repeat) {
+      // 焦點在按鈕上時，空白鍵是「按下按鈕」，不當作暫停
+      if (e.code === 'Space' && e.target.closest('button')) return;
       e.preventDefault();
-      onConfirm();
+      onPause();
     }
   });
 }

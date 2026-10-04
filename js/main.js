@@ -1,47 +1,121 @@
 // 遊戲進入點：初始化各模組並串接起來
-import { GRID, START_LENGTH, TICK_MS, MAX_QUEUED_INPUTS } from './config.js';
+import {
+  GRID,
+  START_LENGTH,
+  MAX_QUEUED_INPUTS,
+  WRAP_RULES,
+  DIFFICULTIES,
+  DEFAULT_SETTINGS,
+} from './config.js';
 import { Game, STATE, startLoop } from './game.js';
 import { bindKeyboard } from './input.js';
 import { createRenderer } from './renderer.js';
+import { loadSettings, saveSettings, getHighScore, saveHighScore } from './storage.js';
+import { createUI } from './ui.js';
 
-const canvas = document.getElementById('game');
-const status = document.getElementById('status');
+// 目前只有經典模式，第 3 階段加入隨機關卡
+const MODE = 'classic';
 
-const game = new Game({
-  cols: GRID.cols,
-  rows: GRID.rows,
-  tickMs: TICK_MS,
-  startLength: START_LENGTH,
-  maxQueuedInputs: MAX_QUEUED_INPUTS,
-  // 第 1 階段先固定為四周都是牆，第 2、3 階段再依難度與關卡決定
-  wrap: { x: false, y: false },
-});
+const settings = sanitizeSettings(loadSettings(DEFAULT_SETTINGS));
+const render = createRenderer(document.getElementById('game'), GRID);
 
-const render = createRenderer(canvas, GRID);
+let game = null;
+let lastState = null;
+let lastScore = -1;
 
-bindKeyboard({
-  onDirection: (direction) => game.queueDirection(direction),
-  onConfirm: () => game.start(),
-});
+// 儲存的設定可能來自舊版本或被手動修改過，不合法的值改回預設
+function sanitizeSettings(saved) {
+  return {
+    difficulty: saved.difficulty in DIFFICULTIES ? saved.difficulty : DEFAULT_SETTINGS.difficulty,
+  };
+}
 
-// 狀態文字（暫時寫死中文，第 4 階段改用語言檔）
-function statusText() {
-  switch (game.state) {
-    case STATE.READY:
-      return '按 Enter 開始，用方向鍵或 WASD 控制';
-    case STATE.PLAYING:
-      return `分數：${game.score}`;
-    case STATE.OVER:
-      return game.won
-        ? `恭喜破關！分數：${game.score}，按 Enter 再玩一次`
-        : `遊戲結束！分數：${game.score}，按 Enter 再玩一次`;
+function newGame() {
+  const difficulty = DIFFICULTIES[settings.difficulty];
+  game = new Game({
+    cols: GRID.cols,
+    rows: GRID.rows,
+    startLength: START_LENGTH,
+    maxQueuedInputs: MAX_QUEUED_INPUTS,
+    speed: difficulty,
+    wrap: WRAP_RULES[difficulty.classicWrap],
+  });
+  lastScore = -1;
+  game.start();
+  ui.showPlaying();
+}
+
+function backToMenu() {
+  game = null;
+  ui.showMenu(settings, getHighScore(MODE, settings.difficulty));
+  ui.updateHud(0, getHighScore(MODE, settings.difficulty));
+}
+
+function togglePause() {
+  if (!game) return;
+  if (game.state === STATE.PLAYING) {
+    game.pause();
+  } else if (game.state === STATE.PAUSED) {
+    game.resume();
+    ui.showPlaying();
   }
 }
 
-startLoop(game, () => {
-  render(game);
-
-  // 只在文字改變時更新，避免螢幕閱讀器每一幀都重複朗讀
-  const text = statusText();
-  if (status.textContent !== text) status.textContent = text;
+const ui = createUI({
+  onStart(choice) {
+    Object.assign(settings, choice);
+    saveSettings(settings);
+    newGame();
+  },
+  onDifficultyChange(choice) {
+    ui.setMenuHighScore(getHighScore(MODE, choice.difficulty));
+  },
+  onResume: togglePause,
+  onRestart: newGame,
+  onMenu: backToMenu,
+  onPause: togglePause,
 });
+
+bindKeyboard({
+  onDirection: (direction) => game?.queueDirection(direction),
+  onPause: togglePause,
+});
+
+// 切換到其他分頁或縮小視窗時自動暫停
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && game?.state === STATE.PLAYING) game.pause();
+});
+
+// 遊戲狀態改變時（例如暫停、結束），切換對應的畫面
+function handleStateChange() {
+  if (game.state === STATE.PAUSED) {
+    ui.showPaused();
+  } else if (game.state === STATE.OVER) {
+    const isRecord = saveHighScore(MODE, settings.difficulty, game.score);
+    ui.showOver({ score: game.score, won: game.won, isRecord });
+    ui.announce(`遊戲結束，分數 ${game.score}`);
+  }
+}
+
+startLoop((dt) => {
+  if (game) {
+    game.step(dt);
+
+    if (game.state !== lastState) {
+      lastState = game.state;
+      handleStateChange();
+    }
+
+    if (game.score !== lastScore) {
+      lastScore = game.score;
+      ui.updateHud(game.score, Math.max(game.score, getHighScore(MODE, settings.difficulty)));
+      if (game.score > 0) ui.announce(`分數 ${game.score}`);
+    }
+  } else {
+    lastState = null;
+  }
+
+  render(game);
+});
+
+backToMenu();

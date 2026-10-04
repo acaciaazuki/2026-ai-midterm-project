@@ -19,9 +19,11 @@ export function createRenderer(canvas, { cols, rows, cellSize }) {
     ctx.fillRect(cell.x * cellSize + 1, cell.y * cellSize + 1, cellSize - 2, cellSize - 2);
   }
 
+  // game 為 null 時（例如在主選單）只畫空白的地圖
   return function render(game) {
     ctx.fillStyle = COLORS.board;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (!game) return;
 
     if (game.food) drawCell(game.food, COLORS.food);
 

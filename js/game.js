@@ -4,37 +4,43 @@ import { createSnake, moveHead, isOpposite, occupies } from './snake.js';
 export const STATE = {
   READY: 'ready', // 等待開始
   PLAYING: 'playing', // 遊戲中
+  PAUSED: 'paused', // 暫停
   OVER: 'over', // 遊戲結束
 };
 
 export class Game {
-  constructor({ cols, rows, tickMs, startLength, maxQueuedInputs, wrap, rng = Math.random }) {
+  // speed 的欄位說明見 config.js 的 DIFFICULTIES
+  constructor({ cols, rows, startLength, maxQueuedInputs, speed, wrap, rng = Math.random }) {
     this.cols = cols;
     this.rows = rows;
-    this.tickMs = tickMs;
-    this.startLength = startLength;
     this.maxQueuedInputs = maxQueuedInputs;
+    this.speed = speed;
     this.wrap = wrap;
     this.rng = rng;
-    this.reset();
-  }
 
-  // 回到初始狀態：蛇放在地圖中央，朝右前進
-  reset() {
-    const head = { x: Math.floor(this.cols / 2), y: Math.floor(this.rows / 2) };
+    // 蛇放在地圖中央，朝右前進
+    const head = { x: Math.floor(cols / 2), y: Math.floor(rows / 2) };
     this.direction = 'right';
-    this.snake = createSnake(head, this.direction, this.startLength);
+    this.snake = createSnake(head, this.direction, startLength);
     this.inputQueue = [];
     this.score = 0;
     this.won = false;
+    this.tickMs = speed.startTickMs;
+    this.elapsed = 0;
     this.food = this.spawnFood();
     this.state = STATE.READY;
   }
 
-  // 開始遊戲；遊戲結束後呼叫則重新開始
   start() {
-    if (this.state === STATE.OVER) this.reset();
     if (this.state === STATE.READY) this.state = STATE.PLAYING;
+  }
+
+  pause() {
+    if (this.state === STATE.PLAYING) this.state = STATE.PAUSED;
+  }
+
+  resume() {
+    if (this.state === STATE.PAUSED) this.state = STATE.PLAYING;
   }
 
   // 把玩家輸入的方向放進佇列，下一次移動時才會套用
@@ -48,6 +54,17 @@ export class Game {
     if (this.inputQueue.length >= this.maxQueuedInputs) return;
 
     this.inputQueue.push(direction);
+  }
+
+  // 經過 dt 毫秒：累積時間，每滿一個移動間隔就前進一格
+  step(dt) {
+    if (this.state !== STATE.PLAYING) return;
+
+    this.elapsed += dt;
+    while (this.elapsed >= this.tickMs && this.state === STATE.PLAYING) {
+      this.elapsed -= this.tickMs;
+      this.update();
+    }
   }
 
   // 前進一格：處理轉向、碰撞與吃食物
@@ -80,11 +97,20 @@ export class Game {
     }
 
     this.score += 1;
+    this.speedUp();
     this.food = this.spawnFood();
     if (!this.food) {
       // 蛇填滿整張地圖，沒有空格可以放食物
       this.won = true;
       this.state = STATE.OVER;
+    }
+  }
+
+  // 依難度設定，每吃到一定數量的食物就縮短移動間隔
+  speedUp() {
+    const { speedupEvery, speedupMs, minTickMs } = this.speed;
+    if (speedupEvery > 0 && this.score % speedupEvery === 0) {
+      this.tickMs = Math.max(minTickMs, this.tickMs - speedupMs);
     }
   }
 
@@ -101,25 +127,16 @@ export class Game {
   }
 }
 
-// 主迴圈：用 requestAnimationFrame 搭配固定的更新間隔，
-// 讓遊戲速度不受螢幕更新率影響
-export function startLoop(game, onFrame) {
+// 主迴圈：每一幀把經過的時間交給 onFrame，
+// 遊戲依時間累積決定何時前進，速度不受螢幕更新率影響
+export function startLoop(onFrame) {
   let last = performance.now();
-  let elapsed = 0;
 
   function frame(now) {
-    elapsed += now - last;
+    // 分頁切到背景再回來時，經過時間會很長，限制上限避免蛇一口氣衝好幾格
+    const dt = Math.min(now - last, 250);
     last = now;
-
-    // 分頁切到背景再回來時，累積時間會很長，限制上限避免蛇一口氣衝好幾格
-    elapsed = Math.min(elapsed, game.tickMs * 3);
-
-    while (elapsed >= game.tickMs) {
-      game.update();
-      elapsed -= game.tickMs;
-    }
-
-    onFrame();
+    onFrame(dt);
     requestAnimationFrame(frame);
   }
 

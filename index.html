@@ -9,8 +9,73 @@
   <body>
     <main class="app">
       <h1 class="title">貪食蛇</h1>
-      <canvas id="game" width="400" height="400" aria-label="遊戲畫面"></canvas>
-      <p id="status" class="status" aria-live="polite"></p>
+
+      <section class="hud" aria-label="遊戲資訊">
+        <div class="hud-item">
+          <span class="hud-label">分數</span>
+          <span id="score" class="hud-value">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">最高分</span>
+          <span id="high-score" class="hud-value">0</span>
+        </div>
+        <button id="pause-button" class="icon-button" type="button" aria-label="暫停" hidden>
+          ❚❚
+        </button>
+      </section>
+
+      <div class="board">
+        <canvas id="game" tabindex="-1" aria-label="遊戲畫面"></canvas>
+
+        <!-- 主選單 -->
+        <div id="menu-screen" class="overlay">
+          <form id="menu-form" class="panel">
+            <h2 class="panel-title">選擇難度</h2>
+            <fieldset class="options">
+              <legend class="visually-hidden">難度</legend>
+              <label class="option">
+                <input type="radio" name="difficulty" value="easy" />
+                <span>簡單</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="difficulty" value="normal" />
+                <span>普通</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="difficulty" value="hard" />
+                <span>困難</span>
+              </label>
+            </fieldset>
+            <p class="panel-text">最高分：<span id="menu-high-score">0</span></p>
+            <button type="submit" class="button primary">開始遊戲</button>
+            <p class="hint">方向鍵或 WASD 移動，空白鍵暫停</p>
+          </form>
+        </div>
+
+        <!-- 暫停畫面 -->
+        <div id="pause-screen" class="overlay" hidden>
+          <div class="panel">
+            <h2 class="panel-title">暫停</h2>
+            <button id="resume-button" type="button" class="button primary">繼續</button>
+            <button id="pause-restart-button" type="button" class="button">重新開始</button>
+            <button id="pause-menu-button" type="button" class="button">回主選單</button>
+          </div>
+        </div>
+
+        <!-- 遊戲結束畫面 -->
+        <div id="over-screen" class="overlay" hidden>
+          <div class="panel">
+            <h2 id="over-title" class="panel-title">遊戲結束</h2>
+            <p class="panel-text">分數：<span id="over-score">0</span></p>
+            <p id="over-record" class="record" hidden>新紀錄！</p>
+            <button id="retry-button" type="button" class="button primary">再玩一次</button>
+            <button id="over-menu-button" type="button" class="button">回主選單</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 給螢幕閱讀器朗讀的訊息 -->
+      <p id="announcer" class="visually-hidden" aria-live="polite"></p>
     </main>
     <script type="module" src="js/main.js"></script>
   </body>
