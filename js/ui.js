@@ -1,16 +1,7 @@
 // 介面：切換主選單、開局提示、暫停、遊戲結束等畫面，並更新分數列
+import { t } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
-
-// 介面文字（暫時寫死中文，第 4 階段改用語言檔）
-const MODE_NAMES = { classic: '經典', random: '隨機關卡' };
-const DIFFICULTY_NAMES = { easy: '簡單', normal: '普通', hard: '困難' };
-const WRAP_NAMES = {
-  both: '全部可穿越',
-  vertical: '只能上下穿越',
-  horizontal: '只能左右穿越',
-  none: '全部是牆',
-};
 
 // 穿牆規則的小圖示
 const WRAP_ICONS = { both: '✥', vertical: '⇅', horizontal: '⇆', none: '▣' };
@@ -49,6 +40,7 @@ export function createUI({
     return {
       mode: data.get('mode'),
       difficulty: data.get('difficulty'),
+      language: data.get('language'),
       levelCode: data.get('mode') === 'random' ? data.get('levelCode').trim() : '',
     };
   }
@@ -79,9 +71,10 @@ export function createUI({
   pauseButton.addEventListener('click', onPause);
 
   return {
-    showMenu(settings, highScore) {
+    showMenu(settings, language, highScore) {
       menuForm.elements.mode.value = settings.mode;
       menuForm.elements.difficulty.value = settings.difficulty;
+      menuForm.elements.language.value = language;
       $('menu-high-score').textContent = highScore;
       // 清空上次輸入的代碼，避免沒注意到而一直重玩同一關
       codeInput.value = '';
@@ -106,16 +99,19 @@ export function createUI({
     setLevelInfo({ wrapRule, code }) {
       const indicator = $('wrap-indicator');
       indicator.textContent = WRAP_ICONS[wrapRule];
-      indicator.title = WRAP_NAMES[wrapRule];
-      indicator.setAttribute('aria-label', WRAP_NAMES[wrapRule]);
+      indicator.title = t(`wrap.${wrapRule}`);
+      indicator.setAttribute('aria-label', t(`wrap.${wrapRule}`));
       $('hud-level-code').textContent = code ?? '';
       $('level-info').hidden = false;
     },
 
     showIntro({ mode, difficulty, wrapRule, code }) {
-      $('intro-mode').textContent = `${MODE_NAMES[mode]}・${DIFFICULTY_NAMES[difficulty]}`;
-      $('intro-rule').textContent = `本關：${WRAP_NAMES[wrapRule]}`;
-      $('intro-code').textContent = code ? `關卡代碼 ${code}` : '';
+      $('intro-mode').textContent = t('intro.mode', {
+        mode: t(`mode.${mode}`),
+        difficulty: t(`difficulty.${difficulty}`),
+      });
+      $('intro-rule').textContent = t('intro.rule', { rule: t(`wrap.${wrapRule}`) });
+      $('intro-code').textContent = code ? t('levelCode', { code }) : '';
       showScreen('intro');
       canvas.focus({ preventScroll: true });
     },
@@ -132,11 +128,11 @@ export function createUI({
     },
 
     showOver({ score, won, isRecord, code }) {
-      $('over-title').textContent = won ? '恭喜破關！' : '遊戲結束';
+      $('over-title').textContent = t(won ? 'over.won' : 'over.title');
       $('over-score').textContent = score;
       $('over-record').hidden = !isRecord;
       $('over-code').hidden = !code;
-      $('over-code').textContent = code ? `關卡代碼 ${code}` : '';
+      $('over-code').textContent = code ? t('levelCode', { code }) : '';
       $('new-level-button').hidden = !code;
       showScreen('over');
       $('retry-button').focus();
@@ -150,10 +146,6 @@ export function createUI({
     // 透過 aria-live 區域讓螢幕閱讀器朗讀
     announce(text) {
       $('announcer').textContent = text;
-    },
-
-    wrapName(wrapRule) {
-      return WRAP_NAMES[wrapRule];
     },
   };
 }

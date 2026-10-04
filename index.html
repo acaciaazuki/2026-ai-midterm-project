@@ -7,62 +7,75 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
+    <!-- 文字以中文為預設，切換語言時依 data-i18n 系列屬性替換 -->
     <main class="app">
-      <h1 class="title">貪食蛇</h1>
+      <h1 class="title" data-i18n="title">貪食蛇</h1>
 
-      <section class="hud" aria-label="遊戲資訊">
+      <section class="hud" aria-label="遊戲資訊" data-i18n-aria-label="hud.label">
         <div class="hud-item">
-          <span class="hud-label">分數</span>
+          <span class="hud-label" data-i18n="hud.score">分數</span>
           <span id="score" class="hud-value">0</span>
         </div>
         <div class="hud-item">
-          <span class="hud-label">最高分</span>
+          <span class="hud-label" data-i18n="hud.highScore">最高分</span>
           <span id="high-score" class="hud-value">0</span>
         </div>
         <div id="level-info" class="hud-item" hidden>
           <span id="wrap-indicator" class="wrap-indicator" role="img"></span>
           <span id="hud-level-code" class="hud-label"></span>
         </div>
-        <button id="pause-button" class="icon-button" type="button" aria-label="暫停" hidden>
+        <button
+          id="pause-button"
+          class="icon-button"
+          type="button"
+          aria-label="暫停"
+          data-i18n-aria-label="hud.pause"
+          hidden
+        >
           ❚❚
         </button>
       </section>
 
       <div class="board">
-        <canvas id="game" tabindex="-1" aria-label="遊戲畫面"></canvas>
+        <canvas
+          id="game"
+          tabindex="-1"
+          aria-label="遊戲畫面"
+          data-i18n-aria-label="board.label"
+        ></canvas>
 
         <!-- 主選單 -->
         <div id="menu-screen" class="overlay">
           <form id="menu-form" class="panel">
-            <h2 class="panel-title">遊戲設定</h2>
+            <h2 class="panel-title" data-i18n="menu.title">遊戲設定</h2>
             <fieldset class="options">
-              <legend class="visually-hidden">關卡模式</legend>
+              <legend class="visually-hidden" data-i18n="menu.mode">關卡模式</legend>
               <label class="option">
                 <input type="radio" name="mode" value="classic" />
-                <span>經典</span>
+                <span data-i18n="mode.classic">經典</span>
               </label>
               <label class="option">
                 <input type="radio" name="mode" value="random" />
-                <span>隨機關卡</span>
+                <span data-i18n="mode.random">隨機關卡</span>
               </label>
             </fieldset>
             <fieldset class="options">
-              <legend class="visually-hidden">難度</legend>
+              <legend class="visually-hidden" data-i18n="menu.difficulty">難度</legend>
               <label class="option">
                 <input type="radio" name="difficulty" value="easy" />
-                <span>簡單</span>
+                <span data-i18n="difficulty.easy">簡單</span>
               </label>
               <label class="option">
                 <input type="radio" name="difficulty" value="normal" />
-                <span>普通</span>
+                <span data-i18n="difficulty.normal">普通</span>
               </label>
               <label class="option">
                 <input type="radio" name="difficulty" value="hard" />
-                <span>困難</span>
+                <span data-i18n="difficulty.hard">困難</span>
               </label>
             </fieldset>
             <div id="level-code-field" class="field" hidden>
-              <label for="level-code-input">關卡代碼（選填）</label>
+              <label for="level-code-input" data-i18n="menu.levelCode">關卡代碼（選填）</label>
               <input
                 id="level-code-input"
                 name="levelCode"
@@ -71,12 +84,29 @@
                 spellcheck="false"
                 maxlength="8"
                 placeholder="例如 N-4F7K2Q"
+                data-i18n-placeholder="menu.levelCodePlaceholder"
               />
-              <p id="level-code-error" class="error" hidden>關卡代碼格式不正確</p>
+              <p id="level-code-error" class="error" data-i18n="menu.levelCodeError" hidden>
+                關卡代碼格式不正確
+              </p>
             </div>
-            <p class="panel-text">最高分：<span id="menu-high-score">0</span></p>
-            <button type="submit" class="button primary">開始遊戲</button>
-            <p class="hint">方向鍵或 WASD 移動，空白鍵暫停</p>
+            <!-- 語言選項固定用各自的語言顯示，看不懂目前語言的人也找得到 -->
+            <fieldset class="options">
+              <legend class="visually-hidden" data-i18n="menu.language">語言</legend>
+              <label class="option">
+                <input type="radio" name="language" value="zh-TW" />
+                <span lang="zh-TW">中文</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="language" value="en" />
+                <span lang="en">English</span>
+              </label>
+            </fieldset>
+            <p class="panel-text">
+              <span data-i18n="menu.highScore">最高分：</span><span id="menu-high-score">0</span>
+            </p>
+            <button type="submit" class="button primary" data-i18n="menu.start">開始遊戲</button>
+            <p class="hint" data-i18n="menu.hint">方向鍵或 WASD 移動，空白鍵暫停</p>
           </form>
         </div>
 
@@ -92,23 +122,37 @@
         <!-- 暫停畫面 -->
         <div id="pause-screen" class="overlay" hidden>
           <div class="panel">
-            <h2 class="panel-title">暫停</h2>
-            <button id="resume-button" type="button" class="button primary">繼續</button>
-            <button id="pause-restart-button" type="button" class="button">重新開始</button>
-            <button id="pause-menu-button" type="button" class="button">回主選單</button>
+            <h2 class="panel-title" data-i18n="pause.title">暫停</h2>
+            <button id="resume-button" type="button" class="button primary" data-i18n="pause.resume">
+              繼續
+            </button>
+            <button id="pause-restart-button" type="button" class="button" data-i18n="pause.restart">
+              重新開始
+            </button>
+            <button id="pause-menu-button" type="button" class="button" data-i18n="common.menu">
+              回主選單
+            </button>
           </div>
         </div>
 
         <!-- 遊戲結束畫面 -->
         <div id="over-screen" class="overlay" hidden>
           <div class="panel">
-            <h2 id="over-title" class="panel-title">遊戲結束</h2>
-            <p class="panel-text">分數：<span id="over-score">0</span></p>
-            <p id="over-record" class="record" hidden>新紀錄！</p>
+            <h2 id="over-title" class="panel-title"></h2>
+            <p class="panel-text">
+              <span data-i18n="over.score">分數：</span><span id="over-score">0</span>
+            </p>
+            <p id="over-record" class="record" data-i18n="over.record" hidden>新紀錄！</p>
             <p id="over-code" class="hint" hidden></p>
-            <button id="retry-button" type="button" class="button primary">再玩一次</button>
-            <button id="new-level-button" type="button" class="button" hidden>新關卡</button>
-            <button id="over-menu-button" type="button" class="button">回主選單</button>
+            <button id="retry-button" type="button" class="button primary" data-i18n="over.retry">
+              再玩一次
+            </button>
+            <button id="new-level-button" type="button" class="button" data-i18n="over.newLevel" hidden>
+              新關卡
+            </button>
+            <button id="over-menu-button" type="button" class="button" data-i18n="common.menu">
+              回主選單
+            </button>
           </div>
         </div>
       </div>

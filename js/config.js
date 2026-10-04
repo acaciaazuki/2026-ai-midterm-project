@@ -68,4 +68,5 @@ export const LEVEL_INTRO_MS = 1500;
 export const DEFAULT_SETTINGS = {
   mode: 'classic',
   difficulty: 'normal',
+  language: null, // null 表示依瀏覽器語言自動決定
 };

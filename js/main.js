@@ -9,6 +9,7 @@ import {
   DEFAULT_SETTINGS,
 } from './config.js';
 import { Game, STATE, startLoop } from './game.js';
+import { LANGUAGES, detectLanguage, getLanguage, setLanguage, t } from './i18n.js';
 import { bindKeyboard } from './input.js';
 import { generateLevel, encodeLevelCode, decodeLevelCode } from './level.js';
 import { mulberry32, randomSeed } from './random.js';
@@ -31,6 +32,8 @@ function sanitizeSettings(saved) {
   return {
     mode: MODES.includes(saved.mode) ? saved.mode : DEFAULT_SETTINGS.mode,
     difficulty: saved.difficulty in DIFFICULTIES ? saved.difficulty : DEFAULT_SETTINGS.difficulty,
+    // null 表示玩家還沒選過，每次開啟都依瀏覽器語言自動決定
+    language: LANGUAGES.includes(saved.language) ? saved.language : null,
   };
 }
 
@@ -70,7 +73,7 @@ function newGame() {
 
 function backToMenu() {
   game = null;
-  ui.showMenu(settings, currentHighScore());
+  ui.showMenu(settings, getLanguage(), currentHighScore());
   ui.updateHud(0, currentHighScore());
 }
 
@@ -107,6 +110,13 @@ const ui = createUI({
   },
   onMenuChange(choice) {
     ui.setMenuHighScore(getHighScore(choice.mode, choice.difficulty));
+
+    // 語言在選擇的當下就切換並儲存
+    if (choice.language !== getLanguage()) {
+      settings.language = choice.language;
+      saveSettings(settings);
+      setLanguage(choice.language);
+    }
   },
   onResume: togglePause,
   onRestart: newGame,
@@ -138,7 +148,7 @@ function handleStateChange() {
         wrapRule: game.wrapRule,
         code: currentCode(),
       });
-      ui.announce(`本關：${ui.wrapName(game.wrapRule)}`);
+      ui.announce(t('intro.rule', { rule: t(`wrap.${game.wrapRule}`) }));
       break;
     case STATE.PLAYING:
       ui.showPlaying();
@@ -149,7 +159,7 @@ function handleStateChange() {
     case STATE.OVER: {
       const isRecord = saveHighScore(settings.mode, settings.difficulty, game.score);
       ui.showOver({ score: game.score, won: game.won, isRecord, code: currentCode() });
-      ui.announce(`遊戲結束，分數 ${game.score}`);
+      ui.announce(t(game.won ? 'announce.won' : 'announce.over', { score: game.score }));
       break;
     }
   }
@@ -167,11 +177,12 @@ startLoop((dt) => {
     if (game.score !== lastScore) {
       lastScore = game.score;
       ui.updateHud(game.score, Math.max(game.score, currentHighScore()));
-      if (game.score > 0) ui.announce(`分數 ${game.score}`);
+      if (game.score > 0) ui.announce(t('announce.score', { score: game.score }));
     }
   }
 
   render(game);
 });
 
+setLanguage(detectLanguage(settings.language));
 backToMenu();
