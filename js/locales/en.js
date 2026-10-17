@@ -1,6 +1,6 @@
 // 英文介面文字，鍵名必須與 zh-TW.js 完全相同
 export default {
-  title: 'Snake',
+  title: 'midterm-project 貪食蛇',
 
   // 分數列
   'hud.label': 'Game info',
