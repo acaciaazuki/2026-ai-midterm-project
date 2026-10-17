@@ -1,7 +1,7 @@
 // 台灣正體中文介面文字
 // {名稱} 是會被代入的變數，例如 {score} 會換成分數
 export default {
-  title: '貪食蛇',
+  title: 'midterm-project 貪食蛇',
 
   // 分數列
   'hud.label': '遊戲資訊',
